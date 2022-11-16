@@ -42,12 +42,13 @@ const saveNote = (note) =>
     body: JSON.stringify(note),
   });
 
+  // delete note 
 const deleteNote = (id) =>
   fetch(`/api/notes/${id}`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    // headers: {
+    //   'Content-Type': 'application/json',
+    // },
   });
 
 const renderActiveNote = () => {
@@ -83,16 +84,21 @@ const handleNoteDelete = (e) => {
   e.stopPropagation();
 
   const note = e.target;
+  const id = e.target.dataset.id
   const noteId = JSON.parse(note.parentElement.getAttribute('data-note')).id;
+  console.log(noteId)
+  console.log(id)
 
   if (activeNote.id === noteId) {
     activeNote = {};
   }
 
-  deleteNote(noteId).then(() => {
-    getAndRenderNotes();
-    renderActiveNote();
-  });
+  deleteNote(noteId)
+    .then(response => response.json())
+    .then(() => {
+      getAndRenderNotes();
+      renderActiveNote();
+    });
 };
 
 // Sets the activeNote and displays it
@@ -180,11 +186,5 @@ if (window.location.pathname === '/notes') {
   noteText.addEventListener('keyup', handleRenderSaveBtn);
 }
 
-
-// added fetch for notes
-fetch('/api/notes')
-  .then(response => response.json())
-  .then(notes => renderNoteList(notes))
-  .catch(err => console.log(err))
 
 getAndRenderNotes();

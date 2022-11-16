@@ -78,7 +78,7 @@ router.delete('/notes/:id', (req, res) => {
     fs.readFile(dbPath, "utf-8", function(err, data) {
         const notesData = JSON.parse(data)
         const updatedNoteData = notesData.filter(note => id != note.id)
-        fs.writeFile(path.join(__dirname, "db.json"), JSON.stringify(updatedNoteData), function(err) {
+        fs.writeFile(dbPath, JSON.stringify(updatedNoteData), function(err) {
             if(err) {
                 return res.status(500).json(err)
             }
