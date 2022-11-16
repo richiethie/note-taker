@@ -180,4 +180,11 @@ if (window.location.pathname === '/notes') {
   noteText.addEventListener('keyup', handleRenderSaveBtn);
 }
 
+
+// added fetch for notes
+fetch('/api/notes')
+  .then(response => response.json())
+  .then(notes => renderNoteList(notes))
+  .catch(err => console.log(err))
+
 getAndRenderNotes();
