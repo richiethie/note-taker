@@ -1,25 +1,25 @@
+const fs = require('fs')
 const path = require('path')
 const express = require('express')
 const app = express()
 const PORT = 3000
-const notesData = require('./db/db.json')
 
 app.use(express.static("public"))
 app.use(express.json())
 
 app.get('/api/notes', (req, res) => {
-    res.json(notesData)
-})
+    fs.readFile(path.join(__dirname, "db.json"), "utf-8", function(err, data) {
+        if(err) {
+            res.status(500).json(err)
+            return
+        }
+        
+        const json = JSON.parse(data)
+        res.json(json)
+    })
 
-app.get('/api/notes/:noteType', (req, res) => {
-    const noteType = req.params.noteType
-    const results = notesData.filter(note => note.type === noteType)
 
-    if(results.length === 0) {
-        res.status(404)
-    }
-
-    res.json(results)
+    
 })
 
 app.post('/api/notes', (req, res) => {
@@ -34,9 +34,45 @@ app.post('/api/notes', (req, res) => {
         id: Math.random() //come back to generate better id
     }
 
-    notesData.push(newNote)
-    res.json(newNote)
+    fs.readFile(path.join(__dirname, 'db.json'), 'utf-8', function(err, data) {
+        if(err){
+            res.status(500).json(err)
+            return
+        }
+        const notesData = JSON.parse(data)
+        notesData.push(newNote)
+
+        fs.writeFile(path.join(__dirname, 'db.json'), JSON.stringify(notesData), function(err) {
+            if(err) {
+                res.status(500).json(err)
+                return
+            }
+            res.status(200).json(newNote)
+        })
+    })
+
 })
+
+app.get('/api/notes/:noteType', (req, res) => {
+    const noteType = req.params.noteType
+
+    fs.readFile(path.join(__dirname, 'db.json'), 'utf-8', function(err, data) {
+        if(err) {
+            res.status(500).json(err)
+            return
+        }
+        const notesData = JSON.parse(data)
+        const results = notesData.filter(note => note.type === noteType)
+    
+        if(results.length === 0) {
+            res.status(404)
+        }
+    
+        res.json(results)
+    })
+
+})
+
 
 app.get('/', (req, res) => {
     res.sendFile( path.join(__dirname, "public", "index.html") )
