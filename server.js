@@ -5,6 +5,7 @@ const PORT = 3000
 const notesData = require('./db/db.json')
 
 app.use(express.static("public"))
+app.use(express.json())
 
 app.get('/api/notes', (req, res) => {
     res.json(notesData)
@@ -19,6 +20,22 @@ app.get('/api/notes/:noteType', (req, res) => {
     }
 
     res.json(results)
+})
+
+app.post('/api/notes', (req, res) => {
+    const { title, text} = req.body
+    if(!title || !text) {
+        res.status(400).json({ error: 'Missing Title or Text.'})
+        return
+    }
+
+    const newNote = {
+        ...req.body,
+        id: Math.random() //come back to generate better id
+    }
+
+    notesData.push(newNote)
+    res.json(newNote)
 })
 
 app.get('/', (req, res) => {
